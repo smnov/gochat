@@ -35,13 +35,12 @@ func (s *service) CreateUser(c context.Context, req *CreateUserReq) (*CreateUser
 		return nil, err
 	}
 
+	fmt.Printf("hashedPassword: %v\n", hashedPassword)
 	u := &User{
 		Username: req.Username,
 		Email:    req.Email,
 		Password: hashedPassword,
 	}
-
-	fmt.Println(u.Username)
 
 	r, err := s.Repository.CreateUser(ctx, u)
 	if err != nil {
