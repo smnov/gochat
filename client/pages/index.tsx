@@ -1,9 +1,17 @@
-import { API_URL } from '@/constants'
-import React, { useEffect, useState } from 'react'
+import { API_URL, WEBSOCKET_URL } from '@/constants'
+import { AuthContext } from '@/modules/AuthContextProvider'
+import { WebsocketContext } from '@/modules/WSProvider'
+import { useRouter } from 'next/navigation'
+import React, { useContext, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 export default function HomePage() {
   const [rooms, setRooms] = useState<{ id: string, name: string }[]>([])
+  const [roomName, setRoomName] = useState('')
+  const { user } = useContext(AuthContext)
+  const { setConn } = useContext(WebsocketContext)
+
+  const router = useRouter()
 
   const submitHandler = async (e: React.SyntheticEvent) => {
     e.preventDefault()
@@ -28,7 +36,6 @@ export default function HomePage() {
 
   }
 
-  const [roomName, setRoomName] = useState('')
 
   const getRooms = async () => {
     try {
@@ -38,10 +45,21 @@ export default function HomePage() {
 
       const data = await res.json()
       if (res.ok) {
+        console.log(data)
         setRooms(data)
       }
     } catch (err) {
       console.log(err)
+    }
+  }
+
+  const joinRoom = async () => {
+    const roomId = 1
+    const ws = new WebSocket(`${WEBSOCKET_URL}/ws/joinRoom/${roomId}?userId=${user.id}&username=${user.username}`)
+    if (ws.OPEN) {
+      setConn(ws)
+      router.push('/room')
+      return
     }
   }
 
@@ -71,7 +89,7 @@ export default function HomePage() {
                   <div>{room.name}</div>
                 </div>
                 <div>
-                  <button>join</button>
+                  <button onClick={joinRoom}>join</button>
                 </div>
               </div>
             ))}

@@ -5,12 +5,20 @@ import (
 	"server/internal/ws"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 var e *echo.Echo
 
 func InitRouter(userHandler *user.Handler, wsHandler *ws.Handler) {
 	e = echo.New()
+
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST"},
+		AllowCredentials: true,
+		MaxAge:           43200,
+	}))
 	e.POST("/signup", userHandler.CreateUser)
 	e.POST("/login", userHandler.Login)
 	e.GET("/logout", userHandler.Logout)
