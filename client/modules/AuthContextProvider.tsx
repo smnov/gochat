@@ -18,17 +18,17 @@ export const AuthContext = createContext<{
   user: { username: '', id: '' },
   setUser: () => { },
 })
-export default function AuthContextProvider({ children }: { children: React.ReactNode }) {
+const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [authenticated, setAuthenticated] = useState(false)
   const [user, setUser] = useState<UserInfo>({ username: '', id: '' })
 
   const router = useRouter()
 
   useEffect(() => {
-    const userInfo = localStorage.getItem('user_info')
+    const userInfo = localStorage.getItem('user-info')
     if (!userInfo) {
       if (window.location.pathname != '/signup') {
-        //       router.push('/login')
+        router.push('/login')
         return
       }
     } else {
@@ -43,14 +43,17 @@ export default function AuthContextProvider({ children }: { children: React.Reac
     }
   }, [authenticated])
   return (
-    <AuthContext.Provider value={{
-      authenticated: authenticated,
-      setAuthenticated: setAuthenticated,
-      user: user,
-      setUser: setUser,
-    }}
+    <AuthContext.Provider
+      value={{
+        authenticated: authenticated,
+        setAuthenticated: setAuthenticated,
+        user: user,
+        setUser: setUser,
+      }}
     >
       {children}
     </AuthContext.Provider >
   )
 }
+
+export default AuthContextProvider

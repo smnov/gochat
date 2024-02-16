@@ -1,3 +1,4 @@
+'use client'
 import { API_URL, WEBSOCKET_URL } from '@/constants'
 import { AuthContext } from '@/modules/AuthContextProvider'
 import { WebsocketContext } from '@/modules/WSProvider'
@@ -31,11 +32,18 @@ export default function HomePage() {
         getRooms()
       }
     } catch (err) {
-      console.log(err)
+      console.error(err)
     }
 
   }
 
+
+  const logoutHandler = (e: React.SyntheticEvent) => {
+    e.preventDefault()
+    window.localStorage.clear()
+    router.push('/login')
+    return
+  }
 
   const getRooms = async () => {
     try {
@@ -53,8 +61,7 @@ export default function HomePage() {
     }
   }
 
-  const joinRoom = async () => {
-    const roomId = 1
+  const joinRoom = async (roomId: string) => {
     const ws = new WebSocket(`${WEBSOCKET_URL}/ws/joinRoom/${roomId}?userId=${user.id}&username=${user.username}`)
     if (ws.OPEN) {
       setConn(ws)
@@ -63,36 +70,48 @@ export default function HomePage() {
     }
   }
 
+
   useEffect(() => {
     getRooms()
   }, [])
   return (
     <div className='my-8 px-4 md:mx-32 w-full h-full'>
-      <div className='flex justify-center mt-3 p-5'>
-        <input type='text'
-          className='border border-grey p-2 rounded-md focus:outline-none focus:border-blue'
-          placeholder='room name'
-          value={roomName}
-          onChange={(e) => setRoomName(e.target.value)}
-        />
-        <button type='submit' className='bg-blue border text-white rounded-md p-2 md:ml-4' onClick={submitHandler}>Create room</button>
-        <div>
-          <div>Available rooms</div>
-          <div>
-            {rooms.map((room, index) => (
+      <div className='flex flex-row justify-center'>
+        <div>{user.username}</div>
+        <br />
+        <button
+          className='mx-4 px-4 py-2 rounded-md bg-blue text-white'
+          onClick={logoutHandler}
 
-              <div key={index}>
-                <div>
-                  <div>
-                    room
+        >Logout</button>
+      </div>
+      <div>
+        <div className='flex flex-col'>
+          <div className='my-4'>
+            <input
+              className='p-2 border border-grey rounded-md'
+              placeholder='room name'
+              value={roomName}
+              onChange={(e) => setRoomName(e.target.value)}
+            />
+            <button type='submit' className='bg-blue border text-white rounded-md p-2 md:ml-4' onClick={submitHandler}>Create room</button>
+          </div>
+          <div>
+            <div className='text-xl'>Available rooms:</div>
+            <div>
+              {rooms.map((room, index) => (
+                <div key={index} className='flex flex-row my-4'>
+                  <div className='border border-grey rounded-md p-2 w-20'>
+                    <div>{room.name}</div>
                   </div>
-                  <div>{room.name}</div>
+                  <div>
+                    <button
+                      className='p-3 mx-4 rounded-md bg-blue text-white'
+                      onClick={() => joinRoom(room.id)}>join</button>
+                  </div>
                 </div>
-                <div>
-                  <button onClick={joinRoom}>join</button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>

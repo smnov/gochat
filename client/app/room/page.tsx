@@ -22,7 +22,7 @@ export default function Room() {
   const router = useRouter()
   const [users, setUsers] = useState<Array<{ username: string }>>([])
   const { user } = useContext(AuthContext)
-  const [message, setMessage] = useState<Array<Message>>([
+  const [messages, setMessages] = useState<Array<Message>>([
   ])
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export default function Room() {
     const roomId = conn.url.split('/')[5]
     async function getUsers() {
       try {
-        const res = await fetch(`${API_URL}/ws/getUsers/${roomId}`, {
+        const res = await fetch(`${API_URL}/ws/getClients/${roomId}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         })
@@ -49,12 +49,13 @@ export default function Room() {
   }, [])
 
   useEffect(() => {
+    if (conn === null) {
+      router.push('/')
+      return
+    }
 
     if (textarea.current) {
       autosize(textarea.current)
-    }
-    if (conn === null) {
-      router.push('/')
     }
 
     conn.onmessage = (message) => {
@@ -66,14 +67,17 @@ export default function Room() {
       if (m.content == 'user left the chat') {
         const deleteUser = users.filter((user) => user.username != m.username)
         setUsers([...deleteUser])
-        setMessage([...message, m])
+        setMessages([...messages, m])
         return
       }
 
       user?.username == m.username ? (m.type = 'self') : (m.type = 'recv')
-      setMessage([...message, m])
+      setMessages([...messages, m])
     }
-  }, [textarea, message, conn, users])
+    conn.onclose = () => { }
+    conn.onerror = () => { }
+    conn.onopen = () => { }
+  }, [textarea, messages, conn, users])
 
 
   const sendMessage = () => {
@@ -88,9 +92,9 @@ export default function Room() {
     textarea.current.value = ''
   }
   return (
-    <div className='bg-grey'>
+    <div>
       <div>
-        <ChatBody data={message} />
+        <ChatBody data={messages} />
       </div>
       <div className='flex flex-col w-full'>
         <div className='fixed bottom-0 mt-4 w-full'>
@@ -100,7 +104,7 @@ export default function Room() {
               placeholder='enter your message here'
               style={{ resize: 'none' }}
             />
-            <button className='bg-blue text-white rounded-md p-2' onClick={sendMessage}>send</button>
+            <button className='bg-blue text-white rounded-md p-2' type='submit' onClick={sendMessage}>send</button>
           </div>
         </div>
       </div>

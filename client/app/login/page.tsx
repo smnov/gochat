@@ -8,15 +8,9 @@ export default function Login() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const { authenticated } = useContext(AuthContext)
 
   const router = useRouter()
 
-  useEffect(() => {
-    if (authenticated) {
-      router.push('/')
-    }
-  }, [authenticated])
 
   const submitHandler = async (e: React.SyntheticEvent) => {
     e.preventDefault()
@@ -49,6 +43,9 @@ export default function Login() {
         <input placeholder='email' className='p-3 mt-8 rounded-md border-2 border-grey focus:outline-none focus: border-blue' value={email} onChange={(e) => setEmail(e.target.value)} />
         <input type='password' placeholder='password' className='p-3 mt-4 rounded-md border-2 border-grey focus:outline-none focus: border-blue' value={password} onChange={(e) => setPassword(e.target.value)} />
         <button className='p-3 mt-6 rounded-md bg-blue font-bold text-white' type='submit' onClick={submitHandler}>login</button>
+        <div className='mt-2'>
+          <h3>Dont have an account? <a href='/signup'>Sign up!</a></h3>
+        </div>
       </form>
     </div>
   )
