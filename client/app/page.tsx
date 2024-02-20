@@ -75,46 +75,48 @@ export default function HomePage() {
     getRooms()
   }, [])
   return (
-    <div className='my-8 px-4 md:mx-32 w-full h-full'>
-      <div className='flex flex-row justify-center'>
-        <div>{user.username}</div>
-        <br />
-        <button
-          className='mx-4 px-4 py-2 rounded-md bg-blue text-white'
-          onClick={logoutHandler}
-
-        >Logout</button>
+    <div className='container mx-auto p-8'>
+      <div className='flex items-center justify-between mb-8'>
+        <div className='flex items-center'>
+          <img className='h-20 w-20 rounded-full object-fill mr-2' src='src.png' alt='User Avatar' />
+          <div className='text-xl font-bold'>{user.username}</div>
+        </div>
+        <button className='px-4 py-2 rounded-md bg-blue text-white' onClick={logoutHandler}>
+          Logout
+        </button>
       </div>
-      <div>
-        <div className='flex flex-col'>
-          <div className='my-4'>
-            <input
-              className='p-2 border border-grey rounded-md'
-              placeholder='room name'
-              value={roomName}
-              onChange={(e) => setRoomName(e.target.value)}
-            />
-            <button type='submit' className='bg-blue border text-white rounded-md p-2 md:ml-4' onClick={submitHandler}>Create room</button>
-          </div>
-          <div>
-            <div className='text-xl'>Available rooms:</div>
-            <div>
-              {rooms.map((room, index) => (
-                <div key={index} className='flex flex-row my-4'>
-                  <div className='border border-grey rounded-md p-2 w-20'>
-                    <div>{room.name}</div>
-                  </div>
-                  <div>
-                    <button
-                      className='p-3 mx-4 rounded-md bg-blue text-white'
-                      onClick={() => joinRoom(room.id)}>join</button>
-                  </div>
-                </div>
-              ))}
+      <div className='flex flex-col'>
+        <div className='flex items-center my-4'>
+          <input
+            className='p-2 border rounded-md mr-4 focus:outline-none focus:border-blue'
+            placeholder='Enter room name'
+            value={roomName}
+            onChange={(e) => setRoomName(e.target.value)}
+          />
+          <button
+            type='submit'
+            className='bg-blue text-white rounded-md p-2'
+            onClick={submitHandler}
+          >
+            Create room
+          </button>
+        </div>
+        <div>
+          <div className='text-xl mb-2'>Available rooms:</div>
+          {rooms.map((room, index) => (
+            <div key={index} className='flex items-center my-4'>
+              <div className='border rounded-md p-2 mr-2 w-1/2'>{room.name}</div>
+              <button
+                className='p-3 rounded-md bg-blue text-white'
+                onClick={() => joinRoom(room.id)}
+              >
+                Join
+              </button>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
+
   )
 }

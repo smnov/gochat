@@ -22,6 +22,7 @@ export default function RootLayout({
       <WebsocketProvider>
         <AuthContextProvider >
           <html lang="en">
+            <title>Chat</title>
             <body className={inter.className}>
               {children}
             </body>

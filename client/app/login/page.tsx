@@ -19,7 +19,6 @@ export default function Login() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
-
       })
 
       const data = await res.json()
@@ -31,9 +30,11 @@ export default function Login() {
 
         localStorage.setItem('user-info', JSON.stringify(user))
         return router.push('/')
+      } else {
+        alert('Invalid username or password')
       }
-    } catch (err) {
-      console.log(err)
+    } catch (error) {
+      console.error(error)
     }
   }
   return (
