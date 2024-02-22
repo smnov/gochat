@@ -1,19 +1,29 @@
 package ws
 
 import (
+	"context"
+	"database/sql"
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
+	"github.com/redis/go-redis/v9"
 )
 
 type Handler struct {
-	hub *Hub
+	hub   *Hub
+	redis *redis.Client
+	db    *sql.DB
 }
 
-func NewHandler(h *Hub) *Handler {
+func NewHandler(h *Hub, r *redis.Client, db *sql.DB) *Handler {
 	return &Handler{
-		hub: h,
+		hub:   h,
+		redis: r,
+		db:    db,
 	}
 }
 
@@ -27,11 +37,19 @@ type GetRoomsReq struct {
 }
 
 func (h *Handler) CreateRoom(c echo.Context) error {
-	var req CreateRoomReq
+	req := CreateRoomReq{}
 	if err := c.Bind(&req); err != nil {
+		fmt.Printf("error: %v\n", err.Error())
 		c.JSON(http.StatusBadRequest, err.Error())
 		return err
 	}
+
+	//_, err := h.db.CreateRoom(c.Request().Context(), req.ID, req.Name)
+	//if err != nil {
+	//	fmt.Printf("error creating room: %v\n", err.Error())
+	//	c.JSON(http.StatusInternalServerError, "Error creating room")
+	//	return err
+	//}
 
 	h.hub.Rooms[req.ID] = &Room{
 		ID:      req.ID,
@@ -40,6 +58,17 @@ func (h *Handler) CreateRoom(c echo.Context) error {
 	}
 
 	c.JSON(http.StatusOK, req)
+	return nil
+}
+
+func (h *Handler) DeleteRoom(c echo.Context) error {
+	roomId := c.Param("roomId")
+	ctx := context.Background()
+	_, err := h.redis.Del(ctx, roomId).Result()
+	if err != nil {
+		return err
+	}
+	delete(h.hub.Rooms, roomId)
 	return nil
 }
 
@@ -71,21 +100,41 @@ func (h *Handler) JoinRoom(c echo.Context) error {
 	}
 
 	m := &Message{
-		Content:  "A new user has joined the room",
-		RoomID:   roomId,
-		Username: username,
+		Content:   "A new user has joined the room",
+		RoomID:    roomId,
+		Username:  username,
+		CreatedAt: time.Now(),
 	}
-
 	h.hub.Register <- cl
 	h.hub.Broadcast <- m
-	go cl.writeMessage()
-	cl.readMessage(h.hub)
+	go cl.writeMessage(h.redis)
+	go cl.readMessage(h.hub)
 	return nil
 }
 
 type RoomRes struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+}
+
+func (h *Handler) GetMessages(c echo.Context) error {
+	ctx := context.Background()
+	roomId := c.Param("roomId")
+	var messages []Message
+	history, err := h.redis.LRange(ctx, roomId, 0, -1).Result()
+	if err != nil {
+		return err
+	}
+	for _, val := range history {
+		var msg Message
+		err = json.Unmarshal([]byte(val), &msg)
+		if err != nil {
+			return err
+		}
+		messages = append(messages, msg)
+	}
+	c.JSON(http.StatusOK, messages)
+	return nil
 }
 
 func (h *Handler) GetRooms(c echo.Context) error {

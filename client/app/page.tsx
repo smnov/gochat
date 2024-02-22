@@ -56,8 +56,8 @@ export default function HomePage() {
         console.log(data)
         setRooms(data)
       }
-    } catch (err) {
-      console.log(err)
+    } catch (error) {
+      console.error(error)
     }
   }
 
@@ -70,15 +70,27 @@ export default function HomePage() {
     }
   }
 
+  const deleteRoom = async (roomId: string) => {
+    try {
+      const res = await fetch(`${API_URL}/ws/deleteRoom/${roomId}`, {
+        method: 'DELETE',
+      })
+      getRooms()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
 
   useEffect(() => {
     getRooms()
   }, [])
+
   return (
     <div className='container mx-auto p-8'>
       <div className='flex items-center justify-between mb-8'>
         <div className='flex items-center'>
-          <img className='h-20 w-20 rounded-full object-fill mr-2' src='src.png' alt='User Avatar' />
+          <img className='h-20 w-20 rounded-full object-fill mr-2 border border-solid border-black' src='src.png' alt='User Avatar' />
           <div className='text-xl font-bold'>{user.username}</div>
         </div>
         <button className='px-4 py-2 rounded-md bg-blue text-white' onClick={logoutHandler}>
@@ -111,6 +123,12 @@ export default function HomePage() {
                 onClick={() => joinRoom(room.id)}
               >
                 Join
+              </button>
+              <button
+                className='p-3 mx-2 rounded-md bg-red text-white'
+                onClick={() => deleteRoom(room.id)}
+              >
+                Delete
               </button>
             </div>
           ))}

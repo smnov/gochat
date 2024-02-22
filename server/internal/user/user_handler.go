@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -35,6 +36,7 @@ func (h *Handler) CreateUser(c echo.Context) error {
 func (h *Handler) Login(c echo.Context) error {
 	var u LoginUserReq
 	if err := c.Bind(&u); err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, err.Error())
 		return err
 	}

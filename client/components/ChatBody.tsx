@@ -11,9 +11,11 @@ interface ChatBodyProps {
 function ChatBody({ user, data, historyMessages }: ChatBodyProps) {
   return (
     <>
-      {historyMessages.map((message: Message, index: number) => {
-        if (message.content !== 'A new user has joined the room' && message.content !== 'user left the chat') {
-          console.log(message.type)
+      {historyMessages
+        .toReversed()
+        .filter((message) => message.content !== 'A new user has joined the room' && message.content !== 'user left the chat')
+        //       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+        .map((message: Message, index: number) => {
           if (user.username == message.username) {
             return (
               <div key={index} className='flex flex-col mt-2 w-full text-right justify-end'>
@@ -33,8 +35,7 @@ function ChatBody({ user, data, historyMessages }: ChatBodyProps) {
               </div>
             )
           }
-        }
-      })}
+        })}
       {data.map((message: Message, index: number) => {
         if (message.type == 'self') {
           return (
@@ -45,7 +46,7 @@ function ChatBody({ user, data, historyMessages }: ChatBodyProps) {
               </div>
             </div>
           )
-        } else {
+        } else if (message.type == 'recv') {
           return (
             <div key={index} className='flex flex-col w-full text-left justify-start'>
               <div className='text-sm'>{message.username}</div>

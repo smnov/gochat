@@ -14,6 +14,7 @@ export type Message = {
   username: string
   roomId: string
   type: 'recv' | 'self'
+
 }
 
 export default function Room() {
@@ -78,13 +79,16 @@ export default function Room() {
     conn.onmessage = (message) => {
       const m: Message = JSON.parse(message.data)
       if (m.content == 'A new user has joined the room') {
+        console.log('joined')
         setUsers([...users, { username: m.username }])
       }
 
       if (m.content == 'user left the chat') {
-        const deleteUser = users.filter((user) => user.username != m.username)
-        setUsers([...deleteUser])
-        setMessages([...messages, m])
+        const updatedUsers = users.filter((user) => user.username !== m.username);
+        console.log('left: ', m.content)
+        setUsers([...updatedUsers]);
+
+        setMessages([...messages, m]);
         return
       }
 
@@ -110,15 +114,26 @@ export default function Room() {
   }
   return (
     <>
-      <div className='flex flex-col h-screen'>
-        <div className='flex-shrink-0 bg-gray-200 p-4'>
-          <button
-            className='bg-blue text-white rounded-md p-2'
-            onClick={() => router.push('/')}
-          >
+      <div className='flex flex-col min-h-screen bg-gray-100'>
+        <div className='flex-shrink-0 flex items-center bg-blue-500 text-black p-4'>
+          <button className='rounded-md p-2 bg-blue text-white' onClick={() => router.push('/')}>
             Back
           </button>
+          <div className='mx-10 text-lg font-semibold'>Users:</div>
+          <div className='flex items-stretch'>
+            {users.map((user, index) => (
+              <div key={index} className='flex flex-col mx-2 mb-2'>
+                <img
+                  className='h-12 w-12 rounded-full object-cover mr-2 border border-solid border-black'
+                  src='src.png'
+                  alt='User Avatar'
+                />
+                <span className='font-medium'>{user.username}</span>
+              </div>
+            ))}
+          </div>
         </div>
+        <hr className='border-b-1 border-gray-200' />
         <div className='flex-1 overflow-y-auto'>
           <ChatBody user={user} data={messages} historyMessages={historyMessages} />
         </div>
@@ -126,12 +141,11 @@ export default function Room() {
           <div className='flex md:flex-row px-4 py-2 bg-gray-200 md:mx-4 rounded-md'>
             <textarea
               ref={textarea}
-              className='border border-gray-400 rounded-md m-2 w-full h-10 p-2 focus:outline-none'
+              className='border border-gray-400 rounded-md m-2 w-full h-10 p-2 focus:outline-none resize-none'
               placeholder='Enter your message here'
-              style={{ resize: 'none' }}
             />
             <button
-              className='bg-blue text-white rounded-md p-2'
+              className='bg-blue text-white rounded-md p-2 transition duration-300 ease-in-out hover:bg-blue-600'
               type='submit'
               onClick={sendMessage}
             >
