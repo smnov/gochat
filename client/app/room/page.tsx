@@ -13,6 +13,7 @@ export type Message = {
   client_id: string
   username: string
   roomId: string
+  createdAt: Date
   type: 'recv' | 'self'
 
 }
@@ -109,11 +110,18 @@ export default function Room() {
     conn.send(textarea.current.value)
     textarea.current.value = ''
   }
+
+  const backHandler = () => {
+    if (conn !== null) {
+      conn.close()
+    }
+    router.push('/')
+  }
   return (
     <>
       <div className='flex flex-col min-h-screen bg-gray-100'>
         <div className='flex-shrink-0 flex items-center bg-blue-500 text-black p-4'>
-          <button className='rounded-md p-2 bg-blue text-white' onClick={() => router.push('/')}>
+          <button className='rounded-md p-2 bg-dark-primary text-white' onClick={backHandler}>
             Back
           </button>
           <div className='mx-10 text-lg font-semibold'>Users:</div>
@@ -131,18 +139,19 @@ export default function Room() {
           </div>
         </div>
         <hr className='border-b-1 border-gray-200' />
-        <div className='flex-1 overflow-y-auto'>
-          <ChatBody user={user} data={messages} historyMessages={historyMessages} />
-        </div>
-        <div className='fixed bottom-0 mt-4 w-full'>
-          <div className='flex md:flex-row px-4 py-2 bg-gray-200 md:mx-4 rounded-md'>
+        <div>
+          <div className='flex-1 overflow-y-auto max-h-[calc(100vh-190px)]'>
+            <ChatBody user={user} data={messages} historyMessages={historyMessages} />
+          </div>
+          <hr className='border-b-1 border-gray-200' />
+          <div className='flex md:flex-row px-4 py-2 bg-gray-200 md:mx-4'>
             <textarea
               ref={textarea}
-              className='border border-gray-400 rounded-md m-2 w-full h-10 p-2 focus:outline-none resize-none'
+              className='w-full h-full focus:outline-none resize-none'
               placeholder='Enter your message here'
             />
             <button
-              className='bg-blue text-white rounded-md p-2 transition duration-300 ease-in-out hover:bg-blue-600'
+              className='bg-dark-primary text-white rounded-md p-2 transition duration-300 ease-in-out hover:bg-blue-600'
               type='submit'
               onClick={sendMessage}
             >

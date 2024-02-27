@@ -94,7 +94,7 @@ export default function HomePage() {
           <img className='h-20 w-20 rounded-full object-fill mr-2 border border-solid border-black' src='src.png' alt='User Avatar' />
           <div className='text-xl font-bold'>{user.username}</div>
         </div>
-        <button className='px-4 py-2 rounded-md bg-blue text-white' onClick={logoutHandler}>
+        <button className='px-4 py-2 rounded-md bg-dark-primary text-white' onClick={logoutHandler}>
           Logout
         </button>
       </div>
@@ -108,7 +108,7 @@ export default function HomePage() {
           />
           <button
             type='submit'
-            className='bg-blue text-white rounded-md p-2'
+            className='bg-dark-primary text-white rounded-md p-2'
             onClick={submitHandler}
           >
             Create room
@@ -120,7 +120,7 @@ export default function HomePage() {
             <div key={index} className='flex items-center my-4'>
               <div className='border rounded-md p-2 mr-2 w-1/2'>{room.name}</div>
               <button
-                className='p-3 rounded-md bg-blue text-white'
+                className='p-3 rounded-md bg-dark-primary text-white'
                 onClick={() => joinRoom(room.id)}
               >
                 Join
