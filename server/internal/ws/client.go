@@ -41,9 +41,12 @@ func (c *Client) writeMessage(r *redis.Client) {
 		if err != nil {
 			fmt.Errorf("cannot marshal message: %s", err.Error())
 		}
-		msg_redis := r.LPush(ctx, message.RoomID, msg)
-		fmt.Println(msg_redis)
 		c.Conn.WriteJSON(message)
+		if message.Content != "A new user has joined the room" && message.Content != "user left the chat" {
+			if c.Username == message.Username {
+				r.RPush(ctx, message.RoomID, msg)
+			}
+		}
 	}
 }
 

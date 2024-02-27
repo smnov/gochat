@@ -2,10 +2,10 @@ package ws
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -16,14 +16,12 @@ import (
 type Handler struct {
 	hub   *Hub
 	redis *redis.Client
-	db    *sql.DB
 }
 
-func NewHandler(h *Hub, r *redis.Client, db *sql.DB) *Handler {
+func NewHandler(h *Hub, r *redis.Client) *Handler {
 	return &Handler{
 		hub:   h,
 		redis: r,
-		db:    db,
 	}
 }
 
@@ -38,18 +36,12 @@ type GetRoomsReq struct {
 
 func (h *Handler) CreateRoom(c echo.Context) error {
 	req := CreateRoomReq{}
+	ctx := context.Background()
 	if err := c.Bind(&req); err != nil {
 		fmt.Printf("error: %v\n", err.Error())
 		c.JSON(http.StatusBadRequest, err.Error())
 		return err
 	}
-
-	//_, err := h.db.CreateRoom(c.Request().Context(), req.ID, req.Name)
-	//if err != nil {
-	//	fmt.Printf("error creating room: %v\n", err.Error())
-	//	c.JSON(http.StatusInternalServerError, "Error creating room")
-	//	return err
-	//}
 
 	h.hub.Rooms[req.ID] = &Room{
 		ID:      req.ID,
@@ -57,6 +49,12 @@ func (h *Handler) CreateRoom(c echo.Context) error {
 		Clients: make(map[string]*Client),
 	}
 
+	err := h.redis.RPush(ctx, req.ID, req.Name).Err()
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusBadRequest, err.Error())
+		return nil
+	}
 	c.JSON(http.StatusOK, req)
 	return nil
 }
@@ -121,14 +119,16 @@ func (h *Handler) GetMessages(c echo.Context) error {
 	ctx := context.Background()
 	roomId := c.Param("roomId")
 	var messages []Message
-	history, err := h.redis.LRange(ctx, roomId, 0, -1).Result()
+	history, err := h.redis.LRange(ctx, roomId, 1, -1).Result()
 	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
 		return err
 	}
 	for _, val := range history {
 		var msg Message
 		err = json.Unmarshal([]byte(val), &msg)
 		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
 			return err
 		}
 		messages = append(messages, msg)
@@ -140,11 +140,45 @@ func (h *Handler) GetMessages(c echo.Context) error {
 func (h *Handler) GetRooms(c echo.Context) error {
 	rooms := make([]RoomRes, 0)
 
-	for _, r := range h.hub.Rooms {
-		rooms = append(rooms, RoomRes{
-			ID:   r.ID,
-			Name: r.Name,
-		})
+	ctx := context.Background()
+
+	var cursor uint64
+	for {
+		redisRooms, nextCursor, err := h.redis.Scan(ctx, cursor, "*", 10).Result()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err.Error())
+			return err
+		}
+		for _, roomID := range redisRooms {
+			_, found := h.hub.Rooms[roomID]
+			if !found {
+				roomName, err := h.redis.LRange(ctx, roomID, 0, 0).Result()
+				room := &Room{
+					ID:   roomID,
+					Name: strings.Join(roomName, ""),
+				}
+				room.Clients = make(map[string]*Client)
+				h.hub.Rooms[roomID] = room
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, err.Error())
+					return err
+				}
+				rooms = append(rooms, RoomRes{
+					ID:   roomID,
+					Name: strings.Join(roomName, ""),
+				})
+			} else {
+				rooms = append(rooms, RoomRes{
+					ID:   h.hub.Rooms[roomID].ID,
+					Name: h.hub.Rooms[roomID].Name,
+				})
+			}
+		}
+		cursor = nextCursor
+
+		if cursor == 0 {
+			break
+		}
 	}
 	c.JSON(http.StatusOK, rooms)
 	return nil
@@ -161,6 +195,7 @@ func (h *Handler) GetClients(c echo.Context) error {
 	if _, ok := h.hub.Rooms[roomId]; !ok {
 		clients = make([]ClientsRes, 0) // if no rooms return empty ClientsRes
 		c.JSON(http.StatusOK, clients)
+		return nil
 	}
 
 	for _, c := range h.hub.Rooms[roomId].Clients {

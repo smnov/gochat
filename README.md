@@ -13,6 +13,8 @@ This project is a chat application with a backend written in Go and a frontend u
 ## Tech Stack
 
 - Backend: Go
+- Database: Postgresql
+- Chat history: Redis
 - Frontend: Next.js
 - Authentication: JWT tokens
 - Communication: WebSockets
@@ -21,22 +23,19 @@ This project is a chat application with a backend written in Go and a frontend u
 
 Backend
 
-Clone the repository.
-Navigate to the backend directory.
-Install dependencies using go mod tidy.
-Set up your database configurations.
-Run the backend server using go run main.go.
+- Clone the repository.
+- Install dependencies using go mod tidy.
+- Start docker
+- Start application using Makefile:
+```
+Make start
+```
 
 Frontend
-Navigate to the frontend directory.
-Install dependencies using npm install or yarn install.
-Configure the API endpoint in the frontend (if necessary).
-Run the frontend application using npm run dev or yarn dev.
+- Navigate to the client directory.
+- Install dependencies using npm install or yarn install.
+- Run the frontend application using npm run dev or yarn dev.
 
-## Configuration
-
-Backend configuration can be found in backend/config directory.
-Frontend configuration can be done in the respective configuration files.
 
 ## Usage
 
@@ -51,5 +50,6 @@ Feel free to contribute by submitting bug reports, feature requests, or pull req
 License
 
 This project is licensed under the MIT License.
+
 
 

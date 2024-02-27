@@ -1,3 +1,7 @@
+start: 
+	postgres redisstart run
+init:
+	postgresinit redisinit createdb migrateup
 run:
 	@go run cmd/main.go
 
@@ -6,6 +10,9 @@ postgresinit:
 
 redisinit:
 	docker run -d --name redis-stack-server -p 6379:6379 redis/redis-stack-server:latest
+
+redis-start:
+	docker exec -it redis-stack-server redis-cli
 
 postgres:
 	docker exec -it chatdb psql

@@ -19,17 +19,19 @@ export default function HomePage() {
 
     try {
       setRoomName('')
-      const res = await fetch(`${API_URL}/ws/createRoom`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          id: uuidv4(),
-          name: roomName,
-        }),
-      })
-      if (res.ok) {
-        getRooms()
+      if (roomName != '') {
+        const res = await fetch(`${API_URL}/ws/createRoom`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            id: uuidv4(),
+            name: roomName,
+          }),
+        })
+        if (res.ok) {
+          getRooms()
+        }
       }
     } catch (err) {
       console.error(err)
@@ -53,7 +55,6 @@ export default function HomePage() {
 
       const data = await res.json()
       if (res.ok) {
-        console.log(data)
         setRooms(data)
       }
     } catch (error) {

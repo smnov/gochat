@@ -56,7 +56,6 @@ export default function Room() {
           headers: { 'Content-Type': 'application/json' }
         })
         const data: Array<Message> = await res.json()
-        console.log('data: ', data)
         setHistoryMessages(data)
       } catch (err) {
         console.error(err)
@@ -79,13 +78,11 @@ export default function Room() {
     conn.onmessage = (message) => {
       const m: Message = JSON.parse(message.data)
       if (m.content == 'A new user has joined the room') {
-        console.log('joined')
         setUsers([...users, { username: m.username }])
       }
 
       if (m.content == 'user left the chat') {
         const updatedUsers = users.filter((user) => user.username !== m.username);
-        console.log('left: ', m.content)
         setUsers([...updatedUsers]);
 
         setMessages([...messages, m]);

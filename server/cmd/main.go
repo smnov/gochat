@@ -26,9 +26,9 @@ func main() {
 	userHandler := user.NewHandler(userSvc)
 
 	hub := ws.NewHub()
-	wsHandler := ws.NewHandler(hub, client, dbConn.GetDB())
+	wsHandler := ws.NewHandler(hub, client)
 	go hub.Run()
 
 	router.InitRouter(userHandler, wsHandler)
-	router.Start(":8000")
+	router.Start(":8080")
 }
