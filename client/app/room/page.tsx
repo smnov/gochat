@@ -1,8 +1,8 @@
 'use client'
 import ChatBody from '@/components/ChatBody'
-import { API_URL, WEBSOCKET_URL } from '@/constants'
 import { AuthContext } from '@/modules/AuthContextProvider'
 import { WebsocketContext } from '@/modules/WSProvider'
+import { API_URL } from '@/utils/constants'
 import autosize from 'autosize'
 import { useRouter } from 'next/navigation'
 import React, { useContext, useEffect, useRef, useState } from 'react'
@@ -109,6 +109,7 @@ export default function Room() {
 
     conn.send(textarea.current.value)
     textarea.current.value = ''
+    window.scroll(0, document.body.scrollHeight)
   }
 
   const backHandler = () => {
@@ -120,7 +121,7 @@ export default function Room() {
   return (
     <>
       <div className='flex flex-col min-h-screen bg-gray-100'>
-        <div className='flex-shrink-0 flex items-center bg-blue-500 text-black p-4'>
+        <div className='flex-shrink-0 flex items-center bg-blue-500 text-black p-4 bg-lightgrey'>
           <button className='rounded-md p-2 bg-dark-primary text-white' onClick={backHandler}>
             Back
           </button>
@@ -129,29 +130,29 @@ export default function Room() {
             {users.map((user, index) => (
               <div key={index} className='flex flex-col mx-2 mb-2'>
                 <img
-                  className='h-12 w-12 rounded-full object-cover mr-2 border border-solid border-black'
+                  className='h-12 w-12 rounded-full object-cover mr-2 border border-solid border-black justify-center'
                   src='src.png'
                   alt='User Avatar'
                 />
-                <span className='font-medium'>{user.username}</span>
+                <span className='font-medium text-center'>{user.username}</span>
               </div>
             ))}
           </div>
         </div>
         <hr className='border-b-1 border-gray-200' />
-        <div>
-          <div className='flex-1 overflow-y-auto max-h-[calc(100vh-190px)]'>
+        <div className='flex-1 flex flex-col reverse'>
+          <div className='flex-1 flex flex-col reverse max-h-[calc(100vh-190px)]'>
             <ChatBody user={user} data={messages} historyMessages={historyMessages} />
           </div>
           <hr className='border-b-1 border-gray-200' />
-          <div className='flex md:flex-row px-4 py-2 bg-gray-200 md:mx-4'>
+          <div className='flex flex-row h-20 bottom-0'>
             <textarea
               ref={textarea}
-              className='w-full h-full focus:outline-none resize-none'
+              className='w-full focus:outline-none resize-none'
               placeholder='Enter your message here'
             />
             <button
-              className='bg-dark-primary text-white rounded-md p-2 transition duration-300 ease-in-out hover:bg-blue-600'
+              className='bg-dark-primary text-white rounded-md p-3 ease-in-out'
               type='submit'
               onClick={sendMessage}
             >

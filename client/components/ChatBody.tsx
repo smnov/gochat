@@ -1,6 +1,5 @@
 import { Message } from '@/app/room/page'
 import { UserInfo } from '@/modules/AuthContextProvider'
-import { type } from 'os'
 import React from 'react'
 
 interface ChatBodyProps {
@@ -18,13 +17,26 @@ function formatTimestamp(timestamp: Date) {
 
 function ChatBody({ user, data, historyMessages }: ChatBodyProps) {
   return (
-    <>
+    <div style={{ position: 'relative', overflowY: 'auto', maxHeight: '100vh' }}>
+      <img
+        src='background.jpg'
+        alt='bg'
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'fixed',
+          top: 115,
+          zIndex: -1,
+          objectFit: 'cover',
+        }}
+      />
+
       {historyMessages &&
         historyMessages.reverse()
           .map((message: Message, index: number) => {
             if (user.username == message.username) {
               return (
-                <div key={index} className='flex flex-col mt-2 px-3 w-full text-right justify-end'>
+                <div key={index} className='flex flex-col mt-2 px-3 w-full h-full text-right justify-end'>
                   <div>
                     <div className='bg-dark-primary px-10 inline-block max-w-72 rounded-lg justify-end'>
                       <div className='text-sm text-red'>{message.username}</div>
@@ -75,7 +87,7 @@ function ChatBody({ user, data, historyMessages }: ChatBodyProps) {
           )
         }
       })}
-    </>
+    </div>
   )
 }
 

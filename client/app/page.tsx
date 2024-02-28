@@ -1,7 +1,7 @@
 'use client'
-import { API_URL, WEBSOCKET_URL } from '@/constants'
 import { AuthContext } from '@/modules/AuthContextProvider'
 import { WebsocketContext } from '@/modules/WSProvider'
+import { API_URL, WEBSOCKET_URL } from '@/utils/constants'
 import { useRouter } from 'next/navigation'
 import React, { useContext, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
@@ -85,7 +85,7 @@ export default function HomePage() {
 
   useEffect(() => {
     getRooms()
-  }, [])
+  }, [user])
 
   return (
     <div className='container mx-auto p-8'>

@@ -1,5 +1,6 @@
 'use client'
-import { API_URL } from '@/constants'
+import { API_URL } from '@/utils/constants'
+import ValidateEmail from '@/utils/emailvalidation'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -12,6 +13,10 @@ function SignUp() {
 
   const submitHandler = async (e: React.SyntheticEvent) => {
     e.preventDefault()
+    if (!ValidateEmail(email)) {
+      alert('Email is invalid')
+      return
+    }
     try {
       const res = await fetch(`${API_URL}/signup`, {
         method: 'POST',
@@ -26,7 +31,7 @@ function SignUp() {
       }
     } catch (error) {
       alert(error)
-      console.log(error)
+      console.error(error)
     }
   }
   return (
@@ -47,12 +52,12 @@ function SignUp() {
           className='p-3 mt-4 rounded-md border-2 border-grey focus:outline-none focus: border-blue'
           value={password}
           onChange={(e) => setPassword(e.target.value)} />
-        <button className='p-3 mt-6 rounded-md bg-blue font-bold text-white'
+        <button className='p-3 mt-6 rounded-md bg-dark-primary font-bold text-white'
           type='submit'
           onClick={submitHandler}
-        >login</button>
+        >Sign up</button>
         <div className='mt-2'>
-          <h3>Already have an account? <a href='/login'>Login!</a></h3>
+          <h3>Already have an account? <a className='text-blue' href='/login'>Login!</a></h3>
         </div>
       </form>
     </div>

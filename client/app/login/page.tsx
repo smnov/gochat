@@ -1,8 +1,8 @@
 'use client'
-import { API_URL } from '@/constants'
-import { useContext, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AuthContext, UserInfo } from '@/modules/AuthContextProvider'
+import { UserInfo } from '@/modules/AuthContextProvider'
+import { API_URL } from '@/utils/constants'
 
 export default function Login() {
 
@@ -43,9 +43,9 @@ export default function Login() {
         <div className='text-3xl font-bold text-center'>welcome!</div>
         <input placeholder='email' className='p-3 mt-8 rounded-md border-2 border-grey focus:outline-none focus: border-blue' value={email} onChange={(e) => setEmail(e.target.value)} />
         <input type='password' placeholder='password' className='p-3 mt-4 rounded-md border-2 border-grey focus:outline-none focus: border-blue' value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button className='p-3 mt-6 rounded-md bg-blue font-bold text-white' type='submit' onClick={submitHandler}>login</button>
+        <button className='p-3 mt-6 rounded-md bg-dark-primary font-bold text-white' type='submit' onClick={submitHandler}>login</button>
         <div className='mt-2'>
-          <h3>Dont have an account? <a href='/signup'>Sign up!</a></h3>
+          <h3>Dont have an account? <a className='text-blue' href='/signup'>Sign up!</a></h3>
         </div>
       </form>
     </div>
